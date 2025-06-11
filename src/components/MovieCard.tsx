@@ -2,7 +2,7 @@
 
 import React from "react";
 import { formatDate } from "@/lib/format";
-import { Movie } from "@/types/movie";
+import { Movie } from "@/types/types";
 
 const MovieCard: React.FC<{ movie: Movie }> = ({ movie }) => {
   const formattedDate = formatDate(movie.releaseDate);

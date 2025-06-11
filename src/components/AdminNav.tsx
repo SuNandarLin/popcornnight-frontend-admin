@@ -19,6 +19,9 @@ const AdminNav = () => {
       <Link href="/movies/assign" className={linkClasses("/movies/assign")}>
         Assign
       </Link>
+      <Link href="/tickets" className={linkClasses("/tickets")}>
+        Tickets
+      </Link>
     </nav>
   );
 };
