@@ -24,3 +24,15 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Try hiding the "N" debug overlay */
+div[class^="nextjs-dev-overlay"],
+div[data-nextjs-toast],
+div#nextjs__container,
+#__next-build-watcher,
+#__next-route-announcer {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
