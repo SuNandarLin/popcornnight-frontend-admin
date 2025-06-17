@@ -13,7 +13,7 @@ const MovieCard: React.FC<{ movie: Movie }> = ({ movie }) => {
       <div className="w-[100px] h-[150px] flex-shrink-0 mr-4">
         <img
           src={
-            movie.imageUrl ??
+            movie.posterUrl ??
             "https://image.tmdb.org/t/p/w500/8riWcADI1ekEiBguVB9vkilhiQm.jpg"
           }
           alt={movie.title}

@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { createMovie } from "@/api/movie";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "@/utils/firebase";
 
 type Movie = {
   id: number;
@@ -9,7 +11,7 @@ type Movie = {
   description: string;
   releaseDate: string;
   duration: number;
-  imageUrl: string;
+  posterUrl: string;
 };
 
 type MovieFormProps = {
@@ -24,7 +26,7 @@ const MovieForm: React.FC<MovieFormProps> = ({ onAdd, onCancel, nextId }) => {
     description: "",
     releaseDate: "",
     duration: "",
-    imageUrl: "",
+    posterUrl: "",
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -38,21 +40,34 @@ const MovieForm: React.FC<MovieFormProps> = ({ onAdd, onCancel, nextId }) => {
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
 
-      // Temporary use of preview URL as imageUrl
+      // Temporary use of preview URL as posterUrl
       setNewMovie((prev) => ({
         ...prev,
-        imageUrl: previewUrl,
+        posterUrl: previewUrl,
       }));
     }
   };
 
   const handleSubmit = async () => {
     try {
+      let uploadedImageUrl = "";
+
+      if (imageFile) {
+        const storageRef = ref(
+          storage,
+          `movie-posters/${Date.now()}-${imageFile.name}`
+        );
+        await uploadBytes(storageRef, imageFile);
+        uploadedImageUrl = await getDownloadURL(storageRef);
+        console.log("uploadedImageUrl", uploadedImageUrl);
+      }
+
       const created = await createMovie({
         title: newMovie.title,
         description: newMovie.description,
         duration: parseInt(newMovie.duration),
         releaseDate: new Date(newMovie.releaseDate).toISOString(),
+        posterUrl: uploadedImageUrl,
       });
 
       onAdd(created);
@@ -64,7 +79,7 @@ const MovieForm: React.FC<MovieFormProps> = ({ onAdd, onCancel, nextId }) => {
         description: "",
         releaseDate: "",
         duration: "",
-        imageUrl: "",
+        posterUrl: "",
       });
       setImageFile(null);
       setImagePreview(null);

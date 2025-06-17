@@ -4,7 +4,7 @@ export type Movie = {
   description: string;
   releaseDate: string;
   duration: number;
-  imageUrl?: string;
+  posterUrl?: string;
 };
 
 export type Showtime = {
@@ -17,6 +17,7 @@ export type Showtime = {
   hall?: Hall;
   movieId?: number;
   hallId?: number;
+  price?: number;
 };
 
 export type Hall = {
@@ -31,3 +32,16 @@ export type Theatre = {
   name: string;
   halls: Hall[];
 };
+
+export type Ticket = {
+  id: number;
+  seatNumbers: string[];
+  status: "VALID" | "REDEEMED" | "EXPIRED";
+  user: { name: string };
+  showTime: Showtime;
+};
+
+export type MovieRevenue = { movie: string; revenue: number };
+export type MovieTicketSales = { movie: string; tickets: number };
+export type PeakBookingHour = { hour: string; bookings: number };
+export type CustomerTypeCount = { type: string; count: number };

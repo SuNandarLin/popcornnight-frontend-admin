@@ -281,3 +281,30 @@ export const initialTheatres = [
     ],
   },
 ];
+
+export const DashboardDummyData = {
+  totalRevenueThisWeek: 4350,
+  totalTicketsThisWeek: 342,
+  revenueByMovie: [
+    { movie: "Inside Out 2", revenue: 1234 },
+    { movie: "Kung Fu Panda 4", revenue: 980 },
+    { movie: "Godzilla x Kong", revenue: 820 },
+  ],
+  movieTicketSales: [
+    { movie: "Inside Out 2", tickets: 145 },
+    { movie: "Kung Fu Panda 4", tickets: 102 },
+    { movie: "Godzilla x Kong", tickets: 95 },
+  ],
+  peakBookingHours: [
+    { hour: "10 AM", bookings: 12 },
+    { hour: "12 PM", bookings: 48 },
+    { hour: "2 PM", bookings: 72 },
+    { hour: "4 PM", bookings: 90 },
+    { hour: "6 PM", bookings: 60 },
+    { hour: "8 PM", bookings: 30 },
+  ],
+  customerType: [
+    { type: "Registered", count: 280 },
+    { type: "Guest", count: 62 },
+  ],
+};

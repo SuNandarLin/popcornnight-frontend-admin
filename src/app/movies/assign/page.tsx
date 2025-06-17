@@ -36,6 +36,9 @@ export default function AssignPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [originalShowtimes, setOriginalShowtimes] = useState<Showtime[]>([]);
+  const [defaultStandardCost, setDefaultStandardCost] = useState<number>(12);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
 
   const openMoviePicker = (hallId: number) => {
     const targetHall = theatres
@@ -52,7 +55,7 @@ export default function AssignPage() {
     setSelectedHallId(hallId);
   };
 
-  const handleAssign = (movie: Movie, startTime: string) => {
+  const handleAssign = (movie: Movie, startTime: string, price: number) => {
     const timestamp = new Date(`${selectedDate}T${startTime}:00`).getTime();
 
     setTheatres((prev) =>
@@ -81,6 +84,7 @@ export default function AssignPage() {
               seatStatusGrid,
               movieId: movie.id,
               hallId: hall.id,
+              price,
             };
 
             return {
@@ -116,7 +120,8 @@ export default function AssignPage() {
   const handleSave = async () => {
     console.log("Saving showtimes for:", selectedDate);
     console.log("Current theatre state:", theatres);
-
+    setIsSaving(true);
+    setSaveMessage("");
     const allShowtimes = theatres.flatMap((theatre) =>
       theatre.halls.flatMap((hall) =>
         (hall.showTimes ?? []).map((showtime: Showtime) => ({
@@ -127,6 +132,7 @@ export default function AssignPage() {
           timeslot: showtime.timeslot,
           seatStatusGrid: showtime.seatStatusGrid,
           isPublished: showtime.isPublished,
+          price: showtime.price,
         }))
       )
     );
@@ -152,9 +158,13 @@ export default function AssignPage() {
       deletedShowtimes.length > 0 &&
         (await deleteShowtimes(deletedShowtimes.map((s) => s.id!)));
       newShowtimes.length > 0 && (await saveShowtimes([...newShowtimes]));
-      console.log("Showtimes saved successfully.");
+      setSaveMessage("Showtimes saved successfully.");
+
+      setOriginalShowtimes(allShowtimes);
     } catch (error) {
       console.error("Error saving showtimes:", error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -207,12 +217,24 @@ export default function AssignPage() {
           onChange={(e) => setSelectedDate(e.target.value)}
           className="bg-zinc-800 border border-zinc-700 text-white p-2 rounded"
         />
+        <label className="text-sm text-gray-300">Standard Cost (SGD):</label>
+        <input
+          type="number"
+          min={0}
+          step={1}
+          value={defaultStandardCost}
+          onChange={(e) => setDefaultStandardCost(Number(e.target.value))}
+          className="w-24 bg-zinc-800 border border-zinc-700 text-white p-2 rounded"
+        />
         <button
           onClick={handleSave}
           className="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
         >
-          Save
+          {isSaving ? "Saving..." : "Save"}
         </button>
+        {saveMessage && (
+          <span className="text-sm text-green-400">{saveMessage}</span>
+        )}
       </div>
       <div className="p-6 grid gap-6 grid-cols-1 md:grid-cols-2">
         {theatres.map((theatre) => (
@@ -222,14 +244,21 @@ export default function AssignPage() {
             </h2>
             <div className="overflow-x-auto">
               <div className="flex gap-4 min-w-[800px] items-start">
-                {theatre.halls.map((hall: Hall) => (
-                  <HallColumn
-                    key={hall.id}
-                    hall={hall}
-                    onAddShowtime={() => openMoviePicker(hall.id)}
-                    onRemoveShowtime={handleRemoveShowtime}
-                  />
-                ))}
+                {[...theatre.halls]
+                  .slice()
+                  .sort((a, b) => {
+                    const numA = parseInt(a.hallNumber.replace(/\D/g, ""), 10);
+                    const numB = parseInt(b.hallNumber.replace(/\D/g, ""), 10);
+                    return numA - numB;
+                  })
+                  .map((hall: Hall) => (
+                    <HallColumn
+                      key={hall.id}
+                      hall={hall}
+                      onAddShowtime={() => openMoviePicker(hall.id)}
+                      onRemoveShowtime={handleRemoveShowtime}
+                    />
+                  ))}
               </div>
             </div>
           </div>
@@ -239,6 +268,7 @@ export default function AssignPage() {
             hallId={selectedHallId}
             movies={movies}
             lastEndTime={lastEndTime}
+            defaultStandardCost={defaultStandardCost}
             onClose={() => setSelectedHallId(null)}
             onAssign={handleAssign}
           />

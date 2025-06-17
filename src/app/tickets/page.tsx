@@ -1,39 +1,22 @@
 "use client";
 
+import { getUserTickets } from "@/api/ticket";
+import { Ticket } from "@/types/types";
 import { useEffect, useState } from "react";
 
-type Ticket = {
-  id: number;
-  customerName: string;
-  movieTitle: string;
-  hallNumber: number;
-  showtime: string;
-  status: "valid" | "expired" | "attended";
-};
-
 export default function TicketsPage() {
-  const [tickets, setTickets] = useState<Ticket[]>([
-    {
-      id: 1,
-      customerName: "Alice",
-      movieTitle: "Elemental",
-      hallNumber: 3,
-      showtime: "2025-06-09 14:00",
-      status: "attended",
-    },
-  ]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
 
   useEffect(() => {
-    // const fetchTickets = async () => {
-    //   const res = await fetch("/api/tickets");
-    //   if (!res.ok) {
-    //     console.error("Failed to fetch tickets");
-    //     return;
-    //   }
-    //   const data = await res.json();
-    //   setTickets(data);
-    // };
-    // fetchTickets();
+    const fetchTickets = async () => {
+      try {
+        const data = await getUserTickets();
+        setTickets(data);
+      } catch (err) {
+        console.error("Failed to fetch tickets:", err);
+      }
+    };
+    fetchTickets();
   }, []);
 
   return (
@@ -45,17 +28,21 @@ export default function TicketsPage() {
             key={ticket.id}
             className="bg-zinc-800 p-4 rounded border border-zinc-700 text-white"
           >
-            <div className="flex justify-between">
+            <div className="flex justify-between items-start">
               <div>
-                🎟️ {ticket.customerName} booked{" "}
-                <strong>{ticket.movieTitle}</strong> (Hall {ticket.hallNumber})
-                at {ticket.showtime}
+                🎟️ {ticket.user.name} booked{" "}
+                <strong>{ticket.showTime.movie?.title}</strong> (Hall{" "}
+                {ticket.showTime.hall?.hallNumber}) at{" "}
+                {new Date(ticket.showTime.timestamp).toLocaleString()}
+                <div className="text-sm text-gray-400 mt-1">
+                  Seats: {ticket.seatNumbers.join(", ")}
+                </div>
               </div>
               <span
                 className={`px-3 py-1 text-sm rounded ${
-                  ticket.status === "expired"
+                  ticket.status === "EXPIRED"
                     ? "bg-red-500"
-                    : ticket.status === "attended"
+                    : ticket.status === "REDEEMED"
                     ? "bg-green-600"
                     : "bg-yellow-500"
                 }`}

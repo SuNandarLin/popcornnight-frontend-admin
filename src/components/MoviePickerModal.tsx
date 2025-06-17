@@ -8,14 +8,16 @@ type Props = {
   hallId: number;
   movies: Movie[];
   lastEndTime: string;
+  defaultStandardCost: number;
   onClose: () => void;
-  onAssign: (movie: Movie, startTime: string) => void;
+  onAssign: (movie: Movie, startTime: string, price: number) => void;
 };
 
 const MoviePickerModal: React.FC<Props> = ({
   hallId,
   movies,
   lastEndTime,
+  defaultStandardCost,
   onClose,
   onAssign,
 }) => {
@@ -23,10 +25,11 @@ const MoviePickerModal: React.FC<Props> = ({
   const [startTime, setStartTime] = useState(() =>
     getOneHourAfter(lastEndTime)
   );
+  const [price, setPrice] = useState<number>(defaultStandardCost); // default value
 
   const handleAssign = () => {
     if (selectedMovie && startTime) {
-      onAssign(selectedMovie, startTime);
+      onAssign(selectedMovie, startTime, price);
     }
   };
 
@@ -49,7 +52,7 @@ const MoviePickerModal: React.FC<Props> = ({
               >
                 <img
                   src={
-                    movie.imageUrl ??
+                    movie.posterUrl ??
                     "https://image.tmdb.org/t/p/w200/kgrLpJcLBbyhWIkK7fx1fM4iSvf.jpg"
                   }
                   alt={movie.title}
@@ -69,7 +72,7 @@ const MoviePickerModal: React.FC<Props> = ({
             <div className="flex items-center gap-4">
               <img
                 src={
-                  selectedMovie.imageUrl ??
+                  selectedMovie.posterUrl ??
                   "https://image.tmdb.org/t/p/w200/kgrLpJcLBbyhWIkK7fx1fM4iSvf.jpg"
                 }
                 alt={selectedMovie.title}
@@ -94,6 +97,15 @@ const MoviePickerModal: React.FC<Props> = ({
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 className="p-2 w-full bg-zinc-800 border border-zinc-700 rounded text-white"
+              />
+              <label className="block text-sm text-white mt-4">
+                Standard Cost ($)
+              </label>
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(Number(e.target.value))}
+                className="w-full bg-zinc-800 border border-zinc-600 p-2 text-white rounded"
               />
             </div>
 
