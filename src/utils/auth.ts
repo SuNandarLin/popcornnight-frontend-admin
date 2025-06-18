@@ -15,7 +15,6 @@ export const authFetch = async (input: RequestInfo, init: RequestInit = {}) => {
   const res = await fetch(input, { ...init, headers });
 
   if (res.status === 401) {
-    // Token expired or invalid
     console.warn("Unauthorized. Redirecting to login...");
     localStorage.removeItem("authToken");
 
